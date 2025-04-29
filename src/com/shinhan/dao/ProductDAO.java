@@ -14,7 +14,7 @@ import java.util.Map;
 
 public class ProductDAO {
     // insert
-    public void insertProduct(ProductDTO product) {
+    public ProductDTO insertProduct(ProductDTO product) {
         Connection conn = DBUtil.getConnection();
         PreparedStatement pst = null;
         String sql = """
@@ -41,10 +41,12 @@ public class ProductDAO {
         } finally {
             DBUtil.dbDisConnect(conn, pst, null);
         }
+
+        return product;
     }
 
     // update
-    public void updateById(ProductDTO product) {
+    public ProductDTO updateById(ProductDTO product) {
         Connection conn = DBUtil.getConnection();
         PreparedStatement pst = null;
 
@@ -60,7 +62,7 @@ public class ProductDAO {
         for(String key : dynamicSQL.keySet()) {
             sql += key + " = ?, ";
         }
-        sql = sql.substring(0, sql.length()-1);
+        sql = sql.substring(0, sql.length()-2);
         sql += sql2;
 
         try {
@@ -69,24 +71,26 @@ public class ProductDAO {
             for(String key : dynamicSQL.keySet()) {
                 pst.setObject(i++, dynamicSQL.get(key));
             }
-            pst.setString(i, product.getProduct_id());
+            pst.setInt(i, product.getProduct_id());
             pst.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
             DBUtil.dbDisConnect(conn, pst, null);
         }
+
+        return product;
     }
 
     // delete
-    public void deleteById(String productId) {
+    public void deleteById(Integer productId) {
         Connection conn = DBUtil.getConnection();
         PreparedStatement pst = null;
         String sql = "delete from products where product_id = ?";
 
         try {
             pst = conn.prepareStatement(sql);
-            pst.setString(1, productId);
+            pst.setInt(1, productId);
             pst.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -142,6 +146,28 @@ public class ProductDAO {
         return productList;
     }
 
+    public ProductDTO selectById(Integer productId) {
+        Connection conn = DBUtil.getConnection();
+        PreparedStatement pst = null;
+        ResultSet rs = null;
+        String sql = "select * from products where product_id = ?";
+
+        try {
+            pst = conn.prepareStatement(sql);
+            pst.setInt(1, productId);
+            rs = pst.executeQuery();
+
+            if(rs.next()) {
+                ProductDTO product = makeProduct(rs);
+                return product;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
     // selectByName
     public List<ProductDTO> selectByName(String name) {
         List<ProductDTO> productList = new ArrayList<>();
@@ -171,7 +197,7 @@ public class ProductDAO {
 
     private ProductDTO makeProduct(ResultSet rs) throws SQLException {
         ProductDTO product = ProductDTO.builder()
-                .product_id(rs.getString("product_id"))
+                .product_id(rs.getInt("product_id"))
                 .business_id(rs.getString("business_id"))
                 .product_name(rs.getString("product_name"))
                 .product_price(rs.getInt("product_price"))

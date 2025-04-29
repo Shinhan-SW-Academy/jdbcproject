@@ -32,33 +32,33 @@ public class UserController implements CommonInterface {
 
             user = sign(job);
             if(user == null) {
-                System.out.println("잘못된 입력입니다.");
                 continue;
             }
 
-            userView.userDisplay();
-            job = sc.nextInt();
-            sc.nextLine();
+            while(!isStop) {
+                userView.userDisplay();
+                job = sc.nextInt();
+                sc.nextLine();
 
-            switch (job) {
-                case 4 -> f_updateUser(user); // 회원 정보 수정
-                case 5 -> {
-                    f_deleteUser(user); // 회원 탈퇴
-                    isStop = true; // 탈퇴 후 종료
-                }
-                case 6 -> {
-                    System.out.println("============= 로그아웃 =============");
-                    isStop = true;
+                switch (job) {
+                    case 4 -> f_updateUser(user); // 회원 정보 수정
+                    case 5 -> {
+                        f_deleteUser(user); // 회원 탈퇴
+                        isStop = true; // 탈퇴 후 종료
+                    }
+                    case 6 -> {
+                        System.out.println("============= 로그아웃 =============");
+                        isStop = true;
+                    }
+                    default -> {
+                        controller = ControllerFactory.user(job);
+                        if(controller == null) {
+                            continue;
+                        }
+                        controller.execute(user);
+                    }
                 }
             }
-
-            controller = ControllerFactory.user(job, user);
-            if(controller == null) {
-                System.out.println("잘못된 입력입니다.");
-                continue;
-            }
-
-            controller.execute(user);
         }
     }
 
@@ -68,7 +68,7 @@ public class UserController implements CommonInterface {
     }
 
     private void f_updateUser(UserDTO user) {
-        userService.updateById(user);
+        userService.updateById(makeUser(user.getUser_id()));
         userView.display("회원 정보가 수정되었습니다.");
     }
 
@@ -76,15 +76,27 @@ public class UserController implements CommonInterface {
     public UserDTO sign(int job) {
         UserDTO user = null;
         switch(job) {
-            case 1 -> user = f_signUp();
-            case 2 -> user = f_signIn();
+            case 1 -> {
+                user = f_signUp();
+                if(user == null) {
+                    userView.display("============= 회원가입 실패 =============");
+                    return null;
+                }
+            }
+            case 2 -> {
+                user = f_signIn();
+                if(user == null) {
+                    userView.display("============= 로그인 실패 =============");
+                    return null;
+                }
+            }
             default -> user = null;
         }
         return user;
     }
 
     private UserDTO f_signIn() {
-        System.out.println("===== 회원 로그인 =====");
+        System.out.println("============= 회원 로그인 =============");
         System.out.printf("아이디: ");
         String id = sc.nextLine();
         System.out.printf("비밀번호: ");
@@ -96,7 +108,7 @@ public class UserController implements CommonInterface {
     }
 
     private UserDTO f_signUp() {
-        System.out.println("===== 회원 회원가입 =====");
+        System.out.println("============= 회원 회원가입 =============");
         System.out.printf("아이디: ");
         String id = sc.nextLine();
 
@@ -107,7 +119,7 @@ public class UserController implements CommonInterface {
         }
 
         UserDTO user = userService.insertUser(makeUser(id));
-        userView.display("회원가입 성공");
+        userView.display("============= 회원가입 성공 =============");
 
         return user;
     }

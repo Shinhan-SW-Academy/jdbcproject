@@ -18,7 +18,7 @@ public class UserDAO {
         String sql = """
                 insert into users(
                 user_id,
-                user_pw
+                user_pw,
                 user_name,
                 user_phone,
                 user_address)
@@ -57,7 +57,7 @@ public class UserDAO {
         for(String key : dynamicSQL.keySet()) {
             sql += key + " = ?, ";
         }
-        sql = sql.substring(0, sql.length()-1);
+        sql = sql.substring(0, sql.length()-2);
         sql += sql2;
 
         try {

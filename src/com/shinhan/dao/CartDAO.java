@@ -5,12 +5,14 @@ import com.shinhan.dto.CartDTO;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CartDAO {
     // insert
+    // TODO 같은 상품이 있으면 수량, 가격만 변경
     public int insertCart(CartDTO cart) {
         int result = 0;
         Connection conn = DBUtil.getConnection();
@@ -22,7 +24,7 @@ public class CartDAO {
                 product_id,
                 cart_num,
                 cart_price)
-                values(?, ?, ?, ?,
+                values(seq_cart.nextval, ?, ?, ?,
                        (select product_price
                        from products
                        where product_id = ?)*?)
@@ -30,12 +32,11 @@ public class CartDAO {
 
         try {
             pst = conn.prepareStatement(sql);
-            pst.setInt(1, cart.getCart_id());
-            pst.setString(2, cart.getUser_id());
-            pst.setInt(3, cart.getProduct_id());
-            pst.setInt(4, cart.getCart_num());
-            pst.setInt(5, cart.getProduct_id());
-            pst.setInt(6, cart.getCart_num());
+            pst.setString(1, cart.getUser_id());
+            pst.setInt(2, cart.getProduct_id());
+            pst.setInt(3, cart.getCart_num());
+            pst.setInt(4, cart.getProduct_id());
+            pst.setInt(5, cart.getCart_num());
             result = pst.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -45,53 +46,122 @@ public class CartDAO {
     }
 
     // update
-    public int updateById(CartDTO cart) {
-        int result = 0;
+    // 수량, 가격만 변경
+    public void updateByProduct(CartDTO cart) {
         Connection conn = DBUtil.getConnection();
         PreparedStatement pst = null;
-
-        Map<String, Object> dynamicSQL = new HashMap<>();
-
-        if(cart.getCart_num() != null) dynamicSQL.put("cart_num", cart.getCart_num());
-
-        String sql = "update carts set ";
-        String sql2 = " where cart_id = ?";
-        for(String key : dynamicSQL.keySet()) {
-            sql += key + " = ?, ";
-        }
-        sql = sql.substring(0, sql.length()-1);
-        sql += sql2;
+        String sql = """
+            update carts
+            set cart_num = ?, 
+                cart_price = (select product_price from products where product_id = ?) * ?
+            where product_id = ?
+            """;
 
         try {
             pst = conn.prepareStatement(sql);
-            int i = 1;
-            for(String key : dynamicSQL.keySet()) {
-                pst.setObject(i++, dynamicSQL.get(key));
-            }
-            pst.setInt(i, cart.getCart_id());
-            result = pst.executeUpdate();
+            pst.setInt(1, cart.getCart_num());
+            pst.setInt(2, cart.getProduct_id());
+            pst.setInt(3, cart.getCart_num());
+            pst.setInt(4, cart.getProduct_id());
+            pst.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                if (pst != null) pst.close();
+                if (conn != null) conn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
-
-        return result;
     }
 
     // delete
-    public int deleteById(Integer cartId) {
-        int result = 0;
+    // 장바구니에서 삭제
+    // TODO 트리거 사용 x
+    public void deleteByProduct(Integer productId) {
         Connection conn = DBUtil.getConnection();
         PreparedStatement pst = null;
-        String sql = "delete from carts where cart_id = ?";
+        String sql = "delete from carts where product_id = ?";
 
         try {
             pst = conn.prepareStatement(sql);
-            pst.setInt(1, cartId);
-            result = pst.executeUpdate();
+            pst.setInt(1, productId);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // 구매로 사용
+    // 트리거 사용 o
+    public void deleteById(String userId) {
+        Connection conn = DBUtil.getConnection();
+        PreparedStatement pst = null;
+        String sql = "delete from carts where user_id = ?";
+
+        try {
+            pst = conn.prepareStatement(sql);
+            pst.setString(1, userId);
+            pst.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public List<CartDTO> selectAll(String userId) {
+        List<CartDTO> cartList = new ArrayList<>();
+        Connection conn = DBUtil.getConnection();
+        PreparedStatement pst = null;
+        ResultSet rs = null;
+        String sql = "select * from carts where user_id = ?";
+
+        try {
+            pst = conn.prepareStatement(sql);
+            pst.setString(1, userId);
+            rs = pst.executeQuery();
+
+            while(rs.next()) {
+                CartDTO cart = makeCart(rs);
+                cartList.add(cart);
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        return result;
+        return cartList;
+    }
+
+    private CartDTO makeCart(ResultSet rs) throws SQLException {
+        CartDTO cart = CartDTO.builder()
+                .cart_id(rs.getInt("cart_id"))
+                .user_id(rs.getString("user_id"))
+                .product_id(rs.getInt("product_id"))
+                .cart_num(rs.getInt("cart_num"))
+                .cart_price(rs.getInt("cart_price"))
+                .build();
+
+        return cart;
+    }
+
+    public CartDTO selectById(int productId) {
+        Connection conn = DBUtil.getConnection();
+        PreparedStatement pst = null;
+        ResultSet rs = null;
+        String sql = "select * from carts where product_id = ?";
+
+        try {
+            pst = conn.prepareStatement(sql);
+            pst.setInt(1, productId);
+            rs = pst.executeQuery();
+
+            if(rs.next()) {
+                CartDTO cart = makeCart(rs);
+                return cart;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 }

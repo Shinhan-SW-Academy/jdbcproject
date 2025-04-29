@@ -17,7 +17,7 @@ public class ControllerFactory {
         return controller;
     }
 
-    public static OrderInterface user(int job, UserDTO user) {
+    public static OrderInterface user(int job) {
         OrderInterface controller = null;
 
         switch(job) {
@@ -30,12 +30,13 @@ public class ControllerFactory {
         return controller;
     }
 
-    public static OrderInterface business(int job, BusinessDTO business) {
+    public static OrderInterface business(int job) {
         OrderInterface controller = null;
 
         switch(job) {
             case 1 -> controller = new ProductController(); // 상품 추가, 수정, 삭제
             case 2 -> controller = new OrderController(); // 주문 조회, 반품
+            case 3 -> controller = new AccountController();
             default -> {return null;}
         }
 

@@ -8,16 +8,16 @@ import java.util.List;
 public class ProductService {
     ProductDAO productDAO = new ProductDAO();
 
-    public void insertProduct(ProductDTO product) {
-        productDAO.insertProduct(product);
+    public ProductDTO insertProduct(ProductDTO product) {
+        return productDAO.insertProduct(product);
     }
 
-    public void updateById(ProductDTO product) {
-        productDAO.updateById(product);
+    public ProductDTO updateById(ProductDTO product) {
+        return productDAO.updateById(product);
     }
 
-    public void deleteById(String product_id) {
-        productDAO.deleteById(product_id);
+    public void deleteById(Integer productId) {
+        productDAO.deleteById(productId);
     }
 
     public List<ProductDTO> selectAll() {
@@ -26,6 +26,10 @@ public class ProductService {
 
     public List<ProductDTO> selectById(String businessId) {
         return productDAO.selectById(businessId);
+    }
+
+    public ProductDTO selectById(Integer productId) {
+        return productDAO.selectById(productId);
     }
 
     public List<ProductDTO> selectByName(String name) {

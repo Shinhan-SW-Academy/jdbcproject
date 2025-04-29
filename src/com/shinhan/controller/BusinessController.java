@@ -32,33 +32,33 @@ public class BusinessController implements CommonInterface {
 
             business = sign(job);
             if(business == null) {
-                System.out.println("잘못된 입력입니다.");
                 continue;
             }
 
-            userView.businessDisplay();
-            job = sc.nextInt();
-            sc.nextLine();
+            while(!isStop) {
+                userView.businessDisplay();
+                job = sc.nextInt();
+                sc.nextLine();
 
-            switch (job) {
-                case 4 -> f_updateUser(business); // 회원 정보 수정
-                case 5 -> {
-                    f_deleteUser(business); // 회원 탈퇴
-                    isStop = true; // 탈퇴 후 종료
-                }
-                case 6 -> {
-                    System.out.println("============= 로그아웃 =============");
-                    isStop = true;
+                switch (job) {
+                    case 4 -> f_updateUser(business); // 회원 정보 수정
+                    case 5 -> {
+                        f_deleteUser(business); // 회원 탈퇴
+                        isStop = true; // 탈퇴 후 종료
+                    }
+                    case 6 -> {
+                        System.out.println("============= 로그아웃 =============");
+                        isStop = true;
+                    }
+                    default -> {
+                        controller = ControllerFactory.business(job);
+                        if(controller == null) {
+                            continue;
+                        }
+                        controller.execute(business);
+                    }
                 }
             }
-
-            controller = ControllerFactory.business(job, business);
-            if(controller == null) {
-                System.out.println("잘못된 입력입니다.");
-                continue;
-            }
-
-            controller.execute(business);
         }
     }
 
@@ -76,15 +76,27 @@ public class BusinessController implements CommonInterface {
     public BusinessDTO sign(int job) {
         BusinessDTO business = null;
         switch(job) {
-            case 1 -> business = f_signUp();
-            case 2 -> business = f_signIn();
+            case 1 -> {
+                business = f_signUp();
+                if(business == null) {
+                    userView.display("============= 회원가입 실패 =============");
+                    return null;
+                }
+            }
+            case 2 -> {
+                business = f_signIn();
+                if(business == null) {
+                    userView.display("============= 로그인 실패 =============");
+                    return null;
+                }
+            }
             default -> business = null;
         }
         return business;
     }
 
     private BusinessDTO f_signIn() {
-        System.out.println("===== 회원 로그인 =====");
+        System.out.println("============= 회원 로그인 =============");
         System.out.printf("아이디: ");
         String id = sc.nextLine();
         System.out.printf("비밀번호: ");
@@ -96,7 +108,7 @@ public class BusinessController implements CommonInterface {
     }
 
     private BusinessDTO f_signUp() {
-        System.out.println("===== 회원 회원가입 =====");
+        System.out.println("============= 회원 회원가입 =============");
         System.out.printf("아이디: ");
         String id = sc.nextLine();
 
@@ -107,7 +119,7 @@ public class BusinessController implements CommonInterface {
         }
 
         BusinessDTO business = businessService.insertBusiness(makeBusiness(id));
-        userView.display("회원가입 성공");
+        userView.display("============= 회원가입 성공 =============");
 
         return business;
     }

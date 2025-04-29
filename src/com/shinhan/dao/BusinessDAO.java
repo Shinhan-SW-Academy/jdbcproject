@@ -52,7 +52,7 @@ public class BusinessDAO {
         for(String key : dynamicSQL.keySet()) {
             sql += key + " = ?, ";
         }
-        sql = sql.substring(0, sql.length()-1);
+        sql = sql.substring(0, sql.length()-2);
         sql += sql2;
 
         try {

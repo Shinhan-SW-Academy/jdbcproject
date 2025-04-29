@@ -68,8 +68,9 @@ public class BusinessController implements CommonInterface {
     }
 
     private void f_updateUser(BusinessDTO business) {
-        businessService.updateById(business);
+        businessService.updateById(makeBusiness(business.getBusiness_id()));
         userView.display("회원 정보가 수정되었습니다.");
+        // 회원 정보 출력
     }
 
     @Override

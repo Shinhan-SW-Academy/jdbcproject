@@ -6,15 +6,23 @@ import com.shinhan.dto.UserDTO;
 public class UserService {
     UserDAO userDAO = new UserDAO();
 
-    public int insertUser(UserDTO user) {
+    public UserDTO insertUser(UserDTO user) {
         return userDAO.insertUser(user);
     }
 
-    public int updateById(UserDTO user) {
-        return userDAO.updateById(user);
+    public void updateById(UserDTO user) {
+        userDAO.updateById(user);
     }
 
-    public int deleteById(String userId) {
-        return userDAO.deleteById(userId);
+    public void deleteById(String userId) {
+        userDAO.deleteById(userId);
+    }
+
+    public UserDTO login(String userId, String userPw) {
+        return userDAO.login(userId, userPw);
+    }
+
+    public UserDTO selectById(String userId) {
+        return userDAO.selectById(userId);
     }
 }

@@ -2,17 +2,18 @@ package com.shinhan.dao;
 
 import com.shinhan.common.DBUtil;
 import com.shinhan.dto.BusinessDTO;
+import com.shinhan.dto.UserDTO;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
 public class BusinessDAO {
     // insert
-    public int insertBusiness(BusinessDTO business) {
-        int result = 0;
+    public BusinessDTO insertBusiness(BusinessDTO business) {
         Connection conn = DBUtil.getConnection();
         PreparedStatement pst = null;
         String sql = """
@@ -28,17 +29,16 @@ public class BusinessDAO {
             pst.setString(1, business.getBusiness_id());
             pst.setString(2, business.getBusiness_pw());
             pst.setString(3, business.getBusiness_name());
-            result = pst.executeUpdate();
+            pst.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        return result;
+        return business;
     }
 
     // update
-    public int updateById(BusinessDTO business) {
-        int result = 0;
+    public void updateById(BusinessDTO business) {
         Connection conn = DBUtil.getConnection();
         PreparedStatement pst = null;
 
@@ -62,17 +62,14 @@ public class BusinessDAO {
                 pst.setObject(i++, dynamicSQL.get(key));
             }
             pst.setString(i, business.getBusiness_id());
-            result = pst.executeUpdate();
+            pst.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
-        return result;
     }
 
     // delete
-    public int deleteById(String businessId) {
-        int result = 0;
+    public void deleteById(String businessId) {
         Connection conn = DBUtil.getConnection();
         PreparedStatement pst = null;
         String sql = "delete from businesses where business_id = ?";
@@ -80,11 +77,68 @@ public class BusinessDAO {
         try {
             pst = conn.prepareStatement(sql);
             pst.setString(1, businessId);
-            result = pst.executeUpdate();
+            pst.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
 
-        return result;
+    public BusinessDTO login(String businessId, String businessPw) {
+        Connection conn = DBUtil.getConnection();
+        PreparedStatement pst = null;
+        ResultSet rs = null;
+        String sql = "select * from businesses where business_id = ? and business_pw = ?";
+
+        try {
+            pst = conn.prepareStatement(sql);
+            pst.setString(1, businessId);
+            pst.setString(2, businessPw);
+            rs = pst.executeQuery();
+
+            if(rs.next()) {
+                BusinessDTO business = makeBusiness(rs);
+                return business;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DBUtil.dbDisConnect(conn, pst, rs);
+        }
+
+        return null;
+    }
+
+    public BusinessDTO selectById(String id) {
+        Connection conn = DBUtil.getConnection();
+        PreparedStatement pst = null;
+        ResultSet rs = null;
+        String sql = "select * from businesses where business_id = ?";
+
+        try {
+            pst = conn.prepareStatement(sql);
+            pst.setString(1, id);
+            rs = pst.executeQuery();
+
+            if(rs.next()) {
+                BusinessDTO business = makeBusiness(rs);
+                return business;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DBUtil.dbDisConnect(conn, pst, rs);
+        }
+
+        return null;
+    }
+
+    private BusinessDTO makeBusiness(ResultSet rs) throws SQLException {
+        BusinessDTO business = BusinessDTO.builder()
+                .business_id(rs.getString("business_id"))
+                .business_pw(rs.getString("business_pw"))
+                .business_name(rs.getString("business_name"))
+                .build();
+
+        return business;
     }
 }

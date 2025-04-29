@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.sql.Date;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -16,4 +18,6 @@ public class OrderDTO {
     private Integer product_id;
     private Integer order_num;
     private Integer order_price;
+    private OrderStatus order_status;
+    private Date created_at;
 }

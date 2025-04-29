@@ -5,14 +5,14 @@ import com.shinhan.dto.UserDTO;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
 public class UserDAO {
     // insert
-    public int insertUser(UserDTO user) {
-        int result = 0;
+    public UserDTO insertUser(UserDTO user) {
         Connection conn = DBUtil.getConnection();
         PreparedStatement pst = null;
         String sql = """
@@ -32,17 +32,16 @@ public class UserDAO {
             pst.setString(3, user.getUser_name());
             pst.setString(4, user.getUser_phone());
             pst.setString(5, user.getUser_address());
-            result = pst.executeUpdate();
+            pst.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        return result;
+        return user;
     }
 
     // update
-    public int updateById(UserDTO user) {
-        int result = 0;
+    public void updateById(UserDTO user) {
         Connection conn = DBUtil.getConnection();
         PreparedStatement pst = null;
 
@@ -68,17 +67,14 @@ public class UserDAO {
                 pst.setObject(i++, dynamicSQL.get(key));
             }
             pst.setString(i, user.getUser_id());
-            result = pst.executeUpdate();
+            pst.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
-        return result;
     }
 
     // delete
-    public int deleteById(String userId) {
-        int result = 0;
+    public void deleteById(String userId) {
         Connection conn = DBUtil.getConnection();
         PreparedStatement pst = null;
         String sql = "delete from users where user_id = ?";
@@ -86,11 +82,70 @@ public class UserDAO {
         try {
             pst = conn.prepareStatement(sql);
             pst.setString(1, userId);
-            result = pst.executeUpdate();
+            pst.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
 
-        return result;
+    public UserDTO login(String userId, String userPw) {
+        Connection conn = DBUtil.getConnection();
+        PreparedStatement pst = null;
+        ResultSet rs = null;
+        String sql = "select * from users where user_id = ? and user_pw = ?";
+
+        try {
+            pst = conn.prepareStatement(sql);
+            pst.setString(1, userId);
+            pst.setString(2, userPw);
+            rs = pst.executeQuery();
+
+            if(rs.next()) {
+                UserDTO user = makeUser(rs);
+                return user;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DBUtil.dbDisConnect(conn, pst, rs);
+        }
+
+        return null;
+    }
+
+    public UserDTO selectById(String userId) {
+        Connection conn = DBUtil.getConnection();
+        PreparedStatement pst = null;
+        ResultSet rs = null;
+        String sql = "select * from users where user_id = ?";
+
+        try {
+            pst = conn.prepareStatement(sql);
+            pst.setString(1, userId);
+            rs = pst.executeQuery();
+
+            if(rs.next()) {
+                UserDTO user = makeUser(rs);
+                return user;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DBUtil.dbDisConnect(conn, pst, rs);
+        }
+
+        return null;
+    }
+
+    private UserDTO makeUser(ResultSet rs) throws SQLException {
+        UserDTO user = UserDTO.builder()
+                .user_id(rs.getString("user_id"))
+                .user_pw(rs.getString("user_pw"))
+                .user_name(rs.getString("user_name"))
+                .user_phone(rs.getString("user_phone"))
+                .user_address(rs.getString("user_address"))
+                .build();
+
+        return user;
     }
 }

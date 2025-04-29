@@ -1,7 +1,8 @@
 package com.shinhan.common;
 
-import com.shinhan.controller.BusinessController;
-import com.shinhan.controller.UserController;
+import com.shinhan.controller.*;
+import com.shinhan.dto.BusinessDTO;
+import com.shinhan.dto.UserDTO;
 
 public class ControllerFactory {
     public static CommonInterface make(int job) {
@@ -16,10 +17,28 @@ public class ControllerFactory {
         return controller;
     }
 
-    public static void signDisplay() {
-        System.out.println("-----------------------------");
-        System.out.println("1. 회원가입 | 2. 로그인 | 3. 홈");
-        System.out.println("-----------------------------");
-        System.out.printf("작업 선택> ");
+    public static OrderInterface user(int job, UserDTO user) {
+        OrderInterface controller = null;
+
+        switch(job) {
+            case 1 -> controller = new ProductController(); // 상품 조회, 검색
+            case 2 -> controller = new CartController(); // 장바구니, 주문
+            case 3 -> controller = new OrderController(); // 주문 조회
+            default -> {return null;}
+        }
+
+        return controller;
+    }
+
+    public static OrderInterface business(int job, BusinessDTO business) {
+        OrderInterface controller = null;
+
+        switch(job) {
+            case 1 -> controller = new ProductController(); // 상품 추가, 수정, 삭제
+            case 2 -> controller = new OrderController(); // 주문 조회, 반품
+            default -> {return null;}
+        }
+
+        return controller;
     }
 }

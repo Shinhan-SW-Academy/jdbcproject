@@ -105,7 +105,7 @@ public class ProductDAO {
         Connection conn = DBUtil.getConnection();
         PreparedStatement pst = null;
         ResultSet rs = null;
-        String sql = "select * from products order by product_id";
+        String sql = "select * from products where product_inventory != 0 order by product_id";
 
         try {
             pst = conn.prepareStatement(sql);
@@ -174,12 +174,48 @@ public class ProductDAO {
         Connection conn = DBUtil.getConnection();
         PreparedStatement pst = null;
         ResultSet rs = null;
-        String sql = "select * from products where product_name like ? order by product_id";
+        String sql = """
+                    select * from products
+                    where product_name like ?
+                    and product_inventory != 0
+                    order by product_id
+                    """;
 
         try {
             pst = conn.prepareStatement(sql);
             name = "%" + name + "%";
             pst.setString(1, name);
+            rs = pst.executeQuery();
+
+            while(rs.next()) {
+                ProductDTO product = makeProduct(rs);
+                productList.add(product);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DBUtil.dbDisConnect(conn, pst, null);
+        }
+
+        return productList;
+    }
+
+    public List<ProductDTO> selectByBusiness(String businessId) {
+        List<ProductDTO> productList = new ArrayList<>();
+        Connection conn = DBUtil.getConnection();
+        PreparedStatement pst = null;
+        ResultSet rs = null;
+        String sql = """
+                    select * from products
+                    where business_id like ?
+                    and product_inventory != 0
+                    order by product_id
+                    """;
+
+        try {
+            pst = conn.prepareStatement(sql);
+            businessId = "%" + businessId + "%";
+            pst.setString(1, businessId);
             rs = pst.executeQuery();
 
             while(rs.next()) {

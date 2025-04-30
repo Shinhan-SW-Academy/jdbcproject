@@ -2,7 +2,6 @@ package com.shinhan.dao;
 
 import com.shinhan.common.DBUtil;
 import com.shinhan.dto.BusinessDTO;
-import com.shinhan.dto.UserDTO;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

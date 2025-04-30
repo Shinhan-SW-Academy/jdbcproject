@@ -11,7 +11,7 @@ public class AccountDTO {
     @AllArgsConstructor
     @Builder
     public static class UserAccountDTO {
-        private String account_id;
+        private Integer account_id;
         private String user_id;
         private String account_name;
         private Integer balance;
@@ -22,7 +22,7 @@ public class AccountDTO {
     @AllArgsConstructor
     @Builder
     public static class BusinessAccountDTO {
-        private String account_id;
+        private Integer account_id;
         private String business_id;
         private String account_name;
         private Integer balance;

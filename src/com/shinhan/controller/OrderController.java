@@ -32,10 +32,14 @@ public class OrderController implements OrderInterface {
                         f_selectByUser(user);
                     }
                     case 2 -> {
+                        // 주문 취소
+                        f_updateById();
+                    }
+                    case 3 -> {
                         // 이전 페이지
                         isStop = true;
                     }
-                    case 3 -> {
+                    case 4 -> {
                         // 프로그램 종료
                         System.exit(0);
                     }
@@ -78,11 +82,10 @@ public class OrderController implements OrderInterface {
     }
 
     private void f_updateById() {
-        System.out.printf("주문 ID 입력> ");
+        System.out.printf("주문 번호 입력> ");
         int orderId = sc.nextInt();
         sc.nextLine();
 
-        // 주문이 없으면 취소 불가
         OrderDTO order = orderService.selectById(orderId);
         if(order == null) {
             orderView.displayOrder(order);

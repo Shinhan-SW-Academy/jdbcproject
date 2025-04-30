@@ -20,6 +20,7 @@ public class OrderDAO {
         try {
             pst = conn.prepareStatement(sql);
             pst.setInt(1, orderId);
+            pst.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -31,7 +32,12 @@ public class OrderDAO {
         Connection conn = DBUtil.getConnection();
         PreparedStatement pst = null;
         ResultSet rs = null;
-        String sql = "select * from orders where user_id = ?";
+        String sql = """
+                select o.*, p.product_name
+                from orders o
+                join products p on o.product_id = p.product_id
+                where o.user_id = ?
+                """;
 
         try {
             pst = conn.prepareStatement(sql);
@@ -54,7 +60,12 @@ public class OrderDAO {
         Connection conn = DBUtil.getConnection();
         PreparedStatement pst = null;
         ResultSet rs = null;
-        String sql = "select * from orders where business_id = ?";
+        String sql = """
+                select o.*, p.product_name
+                from orders o
+                join products p on o.product_id = p.product_id
+                where o.business_id = ?
+                """;
 
         try {
             pst = conn.prepareStatement(sql);
@@ -72,7 +83,38 @@ public class OrderDAO {
         return orderList;
     }
 
-    private OrderDTO makeOrder(ResultSet rs) throws SQLException {
+    public List<OrderDTO> orderRank(String businessId) {
+        List<OrderDTO> rankList = new ArrayList<>();
+        Connection conn = DBUtil.getConnection();
+        PreparedStatement pst = null;
+        ResultSet rs = null;
+        String sql = """
+                select o.product_id, sum(o.order_price) as total_price, sum(o.order_num) as total_num, p.product_name
+                from orders o
+                join products p on o.product_id = p.product_id
+                where o.order_status = 'PAID'
+                and o.business_id = ?
+                group by o.product_id, p.product_name
+                order by total_price
+                """;
+
+        try {
+            pst = conn.prepareStatement(sql);
+            pst.setString(1, businessId);
+            rs = pst.executeQuery();
+
+            while(rs.next()) {
+                OrderDTO rank = rankingOrder(rs);
+                rankList.add(rank);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return rankList;
+    }
+
+    static OrderDTO makeOrder(ResultSet rs) throws SQLException {
         OrderDTO order = OrderDTO.builder()
                 .order_id(rs.getInt("order_id"))
                 .user_id(rs.getString("user_id"))
@@ -81,17 +123,31 @@ public class OrderDAO {
                 .order_num(rs.getInt("order_num"))
                 .order_price(rs.getInt("order_price"))
                 .order_status(OrderStatus.valueOf(rs.getString("order_status")))
-                .created_at(rs.getDate("created_at"))
+                .product_name(rs.getString("product_name"))
                 .build();
 
         return order;
+    }
+
+    static OrderDTO rankingOrder(ResultSet rs) throws SQLException {
+        return OrderDTO.builder()
+                .product_id(rs.getInt("product_id"))
+                .order_price(rs.getInt("total_price"))
+                .order_num(rs.getInt("total_num"))
+                .product_name(rs.getString("product_name"))
+                .build();
     }
 
     public OrderDTO selectById(Integer orderId) {
         Connection conn = DBUtil.getConnection();
         PreparedStatement pst = null;
         ResultSet rs = null;
-        String sql = "select * from orders where order_id = ?";
+        String sql = """
+                select o.*, p.product_name
+                from orders o
+                join products p on o.product_id = p.product_id
+                where o.order_id = ?
+                """;
 
         try {
             pst = conn.prepareStatement(sql);

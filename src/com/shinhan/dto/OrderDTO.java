@@ -19,5 +19,5 @@ public class OrderDTO {
     private Integer order_num;
     private Integer order_price;
     private OrderStatus order_status;
-    private Date created_at;
+    private String product_name;
 }

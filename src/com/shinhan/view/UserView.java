@@ -15,7 +15,8 @@ public class UserView {
     public void userDisplay() {
         System.out.println("-----------------------------");
         System.out.println("1. 상품 조회 | 2. 장바구니 | 3. 주문 조회");
-        System.out.println("4. 회원 정보 수정 | 5. 회원 탈퇴 | 6. 로그아웃");
+        System.out.println("4. 포인트 충전 | 5. 회원 정보 수정 | 6. 회원 탈퇴");
+        System.out.println("7. 로그아웃");
         System.out.println("-----------------------------");
         System.out.printf("작업 선택> ");
     }

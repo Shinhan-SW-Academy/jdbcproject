@@ -32,14 +32,22 @@ public class ProductController implements OrderInterface {
                         f_selectAll();
                     }
                     case 2 -> {
+                        // TODO 상품 상세 조회
+                        f_selectDetail();
+                    }
+                    case 3 -> {
                         // 상품 검색
                         f_selectByName();
                     }
-                    case 3 -> {
+                    case 4 -> {
+                        // 매장 검색
+                        f_selectByBusiness();
+                    }
+                    case 5 -> {
                         // 이전 페이지
                         isStop = true;
                     }
-                    case 4 -> {
+                    case 6 -> {
                         // 프로그램 종료
                         System.exit(0);
                     }
@@ -79,13 +87,27 @@ public class ProductController implements OrderInterface {
         }
     }
 
+    private void f_selectDetail() {
+        System.out.printf("조회할 상품 코드 입력> ");
+        ProductDTO product = productService.selectById(sc.nextInt());
+        sc.nextLine();
+
+        productView.displayProduct(product);
+    }
+
+    private void f_selectByBusiness() {
+        System.out.printf("마켓 이름 입력> ");
+        List<ProductDTO> productList = productService.selectByBusiness(sc.nextLine());
+        productView.displayProduct(productList);
+    }
+
     private void f_selectById(String businessId) {
         List<ProductDTO> productList = productService.selectById(businessId);
         productView.displayProduct(productList);
     }
 
     private void f_deleteById() {
-        System.out.printf("삭제할 상품 ID 입력> ");
+        System.out.printf("삭제할 상품 코드 입력> ");
         int productId = sc.nextInt();
         sc.nextLine();
 
@@ -100,7 +122,7 @@ public class ProductController implements OrderInterface {
     }
 
     private void f_updateById() {
-        System.out.printf("수정할 상품 ID 입력> ");
+        System.out.printf("수정할 상품 코드 입력> ");
         int productId = sc.nextInt();
         sc.nextLine();
 

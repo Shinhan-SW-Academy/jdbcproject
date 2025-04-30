@@ -28,4 +28,8 @@ public class CartService {
     public CartDTO selectById(int productId) {
         return cartDAO.selectById(productId);
     }
+
+    public void deleteByProduct(Integer productId) {
+        cartDAO.deleteByProduct(productId);
+    }
 }

@@ -1,9 +1,11 @@
 package com.shinhan.controller;
 
 import com.shinhan.common.OrderInterface;
+import com.shinhan.dto.AccountDTO;
 import com.shinhan.dto.CartDTO;
 import com.shinhan.dto.ProductDTO;
 import com.shinhan.dto.UserDTO;
+import com.shinhan.service.AccountService;
 import com.shinhan.service.CartService;
 import com.shinhan.service.ProductService;
 import com.shinhan.view.CartView;
@@ -14,8 +16,11 @@ import java.util.Scanner;
 
 public class CartController implements OrderInterface {
     Scanner sc = new Scanner(System.in);
+
     CartService cartService = new CartService();
     ProductService productService = new ProductService();
+    AccountService accountService = new AccountService();
+
     CartView cartView = new CartView();
     ProductView productView = new ProductView();
 
@@ -59,18 +64,63 @@ public class CartController implements OrderInterface {
     }
 
     private void f_deleteCart(UserDTO user) {
-        List<CartDTO> cartList = cartService.selectAll(user.getUser_id());
-        if(cartList.isEmpty()) {
-            cartView.displayCart(cartList);
-            return;
-        }
+        boolean isStop = false;
 
-        cartService.deleteById(user.getUser_id());
-        cartView.display("============== 상품 구매 완료 =============");
+        while(!isStop) {
+            cartView.purchase();
+            int job = sc.nextInt();
+            sc.nextLine();
+
+            switch (job) {
+                case 1 -> {
+                    List<CartDTO> cartList = cartService.selectAll(user.getUser_id());
+                    if(cartList.isEmpty()) {
+                        cartView.displayCart(cartList);
+                        return;
+                    }
+
+                    AccountDTO.UserAccountDTO account = accountService.selectuAccount(user.getUser_id());
+                    int total = cartList.stream()
+                            .mapToInt(CartDTO::getCart_price)
+                            .sum();
+                    if(account.getBalance() < total) {
+                        cartView.display("포인트 잔액이 부족합니다.");
+                        return;
+                    }
+
+                    cartService.deleteById(user.getUser_id());
+                    cartView.display("============== 상품 구매 완료 =============");
+
+                    isStop = true;
+                }
+                case 2 -> {
+                    System.out.printf("구매할 상품 선택> ");
+                    Integer productId = sc.nextInt();
+                    sc.nextLine();
+
+                    CartDTO cart = cartService.selectById(productId);
+                    if(cart == null) {
+                        cartView.displayCart(cart);
+                        return;
+                    }
+
+                    AccountDTO.UserAccountDTO account = accountService.selectuAccount(user.getUser_id());
+                    int total = cart.getCart_price();
+                    if(account.getBalance() < total) {
+                        cartView.display("포인트 잔액이 부족합니다.");
+                        return;
+                    }
+
+                    cartService.deleteByProduct(productId);
+                    cartView.display("============== 상품 구매 완료 =============");
+                }
+                case 3 -> isStop = true;
+            }
+        }
     }
 
     private void f_updateCart(UserDTO user) {
-        System.out.printf("수량을 변경할 상품 ID 입력> ");
+        System.out.printf("수량을 변경할 상품 코드 입력> ");
         int productId = sc.nextInt();
         sc.nextLine();
 
@@ -84,12 +134,18 @@ public class CartController implements OrderInterface {
         int num = sc.nextInt();
         sc.nextLine();
 
+        ProductDTO product = productService.selectById(productId);
+        if(product.getProduct_inventory() < num) {
+            cartView.display("해당 상품의 재고가 부족합니다.");
+            return;
+        }
+
         cartService.updateByProduct(makeCart(productId, num, user));
         cartView.display("============= 수량 변경 완료 =============");
     }
 
     private void f_insertCart(UserDTO user) {
-        System.out.printf("장바구니에 담을 상품 ID 입력> ");
+        System.out.printf("장바구니에 담을 상품 코드 입력> ");
         int productId = sc.nextInt();
         sc.nextLine();
 
@@ -102,6 +158,11 @@ public class CartController implements OrderInterface {
         System.out.printf("장바구니에 담을 수량 입력> ");
         int num = sc.nextInt();
         sc.nextLine();
+
+        if(product.getProduct_inventory() < num) {
+            cartView.display("해당 상품의 재고가 부족합니다.");
+            return;
+        }
 
         cartService.insertCart(makeCart(productId, num, user));
         cartView.display("============== 장바구니 담기 완료 =============");

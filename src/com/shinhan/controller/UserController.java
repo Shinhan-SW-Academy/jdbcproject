@@ -41,12 +41,12 @@ public class UserController implements CommonInterface {
                 sc.nextLine();
 
                 switch (job) {
-                    case 4 -> f_updateUser(user); // 회원 정보 수정
-                    case 5 -> {
+                    case 5 -> f_updateUser(user); // 회원 정보 수정
+                    case 6 -> {
                         f_deleteUser(user); // 회원 탈퇴
                         isStop = true; // 탈퇴 후 종료
                     }
-                    case 6 -> {
+                    case 7 -> {
                         System.out.println("============= 로그아웃 =============");
                         isStop = true;
                     }
@@ -134,14 +134,11 @@ public class UserController implements CommonInterface {
         String phone = sc.nextLine();
         System.out.printf("주소: ");
         String address = sc.nextLine();
-//        System.out.printf("계좌번호: ");
-//        String account = sc.nextLine();
 
         if(pw.equals("0")) pw = null;
         if(name.equals("0")) name = null;
         if(phone.equals("0")) phone = null;
         if(address.equals("0")) address = null;
-//        if(account.equals("0")) account = null;
 
         UserDTO user = UserDTO.builder()
                 .user_id(id)

@@ -24,7 +24,8 @@ public class CartView {
         }
 
         System.out.println("============= 장바구니 상품 조회 =============");
-        cartList.forEach(cart -> System.out.println(cart));
+        cartList.forEach(cart -> System.out.printf("선택 <%d> 상품 [%s, %d건, %d원]\n",
+                cart.getCart_id(), cart.getProduct_id(), cart.getCart_num(), cart.getCart_price()));
     }
 
     public void displayCart(CartDTO cart) {
@@ -34,5 +35,12 @@ public class CartView {
         }
 
         System.out.println(cart);
+    }
+
+    public void purchase() {
+        System.out.println("-----------------------------");
+        System.out.println("1. 전체 구매 | 2. 선택 구매 | 3. 이전 페이지");
+        System.out.println("-----------------------------");
+        System.out.printf("작업 선택> ");
     }
 }

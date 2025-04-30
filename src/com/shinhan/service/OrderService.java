@@ -23,4 +23,8 @@ public class OrderService {
     public List<OrderDTO> selectByBusiness(String businessId) {
         return orderDAO.selectByBusiness(businessId);
     }
+
+    public List<OrderDTO> orderRank(String businessId) {
+        return orderDAO.orderRank(businessId);
+    }
 }

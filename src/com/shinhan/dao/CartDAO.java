@@ -12,7 +12,6 @@ import java.util.List;
 
 public class CartDAO {
     // insert
-    // TODO 같은 상품이 있으면 수량, 가격만 변경
     public int insertCart(CartDTO cart) {
         int result = 0;
         Connection conn = DBUtil.getConnection();
@@ -51,11 +50,11 @@ public class CartDAO {
         Connection conn = DBUtil.getConnection();
         PreparedStatement pst = null;
         String sql = """
-            update carts
-            set cart_num = ?, 
-                cart_price = (select product_price from products where product_id = ?) * ?
-            where product_id = ?
-            """;
+                update carts
+                set cart_num = ?, 
+                    cart_price = (select product_price from products where product_id = ?) * ?
+                where product_id = ?
+                """;
 
         try {
             pst = conn.prepareStatement(sql);
@@ -77,8 +76,6 @@ public class CartDAO {
     }
 
     // delete
-    // 장바구니에서 삭제
-    // TODO 트리거 사용 x
     public void deleteByProduct(Integer productId) {
         Connection conn = DBUtil.getConnection();
         PreparedStatement pst = null;
@@ -113,7 +110,12 @@ public class CartDAO {
         Connection conn = DBUtil.getConnection();
         PreparedStatement pst = null;
         ResultSet rs = null;
-        String sql = "select * from carts where user_id = ?";
+        String sql = """
+                select c.*, p.product_name
+                from carts c
+                join products p on c.product_id = p.product_id
+                where c.user_id = ?
+                """;
 
         try {
             pst = conn.prepareStatement(sql);
@@ -138,6 +140,7 @@ public class CartDAO {
                 .product_id(rs.getInt("product_id"))
                 .cart_num(rs.getInt("cart_num"))
                 .cart_price(rs.getInt("cart_price"))
+                .product_name(rs.getString("product_name"))
                 .build();
 
         return cart;
@@ -147,7 +150,12 @@ public class CartDAO {
         Connection conn = DBUtil.getConnection();
         PreparedStatement pst = null;
         ResultSet rs = null;
-        String sql = "select * from carts where product_id = ?";
+        String sql = """
+                select c.*, p.product_name
+                from carts c
+                join products p on c.product_id = p.product_id
+                where c.product_id = ?
+                """;
 
         try {
             pst = conn.prepareStatement(sql);

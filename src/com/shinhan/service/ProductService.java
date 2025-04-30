@@ -35,4 +35,8 @@ public class ProductService {
     public List<ProductDTO> selectByName(String name) {
         return productDAO.selectByName(name);
     }
+
+    public List<ProductDTO> selectByBusiness(String businessId) {
+        return productDAO.selectByBusiness(businessId);
+    }
 }

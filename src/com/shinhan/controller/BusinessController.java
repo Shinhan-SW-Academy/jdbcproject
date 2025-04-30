@@ -130,12 +130,9 @@ public class BusinessController implements CommonInterface {
         String pw = sc.nextLine();
         System.out.printf("이름: ");
         String name = sc.nextLine();
-//        System.out.printf("계좌번호: ");
-//        String account = sc.nextLine();
 
         if(pw.equals("0")) pw = null;
         if(name.equals("0")) name = null;
-//        if(account.equals("0")) account = null;
 
         BusinessDTO business = BusinessDTO.builder()
                 .business_id(id)

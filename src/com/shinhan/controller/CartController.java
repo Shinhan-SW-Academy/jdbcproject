@@ -76,7 +76,7 @@ public class CartController implements OrderInterface {
                     List<CartDTO> cartList = cartService.selectAll(user.getUser_id());
                     if(cartList.isEmpty()) {
                         cartView.displayCart(cartList);
-                        return;
+                        continue;
                     }
 
                     AccountDTO.UserAccountDTO account = accountService.selectuAccount(user.getUser_id());
@@ -85,7 +85,7 @@ public class CartController implements OrderInterface {
                             .sum();
                     if(account.getBalance() < total) {
                         cartView.display("포인트 잔액이 부족합니다.");
-                        return;
+                        continue;
                     }
 
                     cartService.deleteById(user.getUser_id());
@@ -101,14 +101,14 @@ public class CartController implements OrderInterface {
                     CartDTO cart = cartService.selectById(productId);
                     if(cart == null) {
                         cartView.displayCart(cart);
-                        return;
+                        continue;
                     }
 
                     AccountDTO.UserAccountDTO account = accountService.selectuAccount(user.getUser_id());
                     int total = cart.getCart_price();
                     if(account.getBalance() < total) {
                         cartView.display("포인트 잔액이 부족합니다.");
-                        return;
+                        continue;
                     }
 
                     cartService.deleteByProduct(productId);

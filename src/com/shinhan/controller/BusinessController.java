@@ -97,7 +97,7 @@ public class BusinessController implements CommonInterface {
     }
 
     private BusinessDTO f_signIn() {
-        System.out.println("============= 회원 로그인 =============");
+        System.out.println("============= 사업자 로그인 =============");
         System.out.printf("아이디: ");
         String id = sc.nextLine();
         System.out.printf("비밀번호: ");
@@ -109,7 +109,7 @@ public class BusinessController implements CommonInterface {
     }
 
     private BusinessDTO f_signUp() {
-        System.out.println("============= 회원 회원가입 =============");
+        System.out.println("============= 사업자 회원가입 =============");
         System.out.printf("아이디: ");
         String id = sc.nextLine();
 

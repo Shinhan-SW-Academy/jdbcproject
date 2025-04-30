@@ -11,7 +11,7 @@ public class ProductView {
 
     public void uProductDisplay() {
         System.out.println("-----------------------------");
-        System.out.println("1. 상품 조회 | 2. 상품 상세 조회 | 3. 상품 검색");
+        System.out.println("1. 전체 상품 조회 | 2. 상품 상세 조회 | 3. 상품 검색");
         System.out.println("4. 매장 검색 | 5. 이전 페이지 | 6. 종료");
         System.out.println("-----------------------------");
         System.out.printf("작업 선택> ");

@@ -176,14 +176,14 @@ public class ProductDAO {
         ResultSet rs = null;
         String sql = """
                     select * from products
-                    where product_name like ?
+                    where lower(product_name) like ?
                     and product_inventory != 0
                     order by product_id
                     """;
 
         try {
             pst = conn.prepareStatement(sql);
-            name = "%" + name + "%";
+            name = "%" + name.toLowerCase() + "%";
             pst.setString(1, name);
             rs = pst.executeQuery();
 
@@ -207,14 +207,14 @@ public class ProductDAO {
         ResultSet rs = null;
         String sql = """
                     select * from products
-                    where business_id like ?
+                    where lower(business_id) like ?
                     and product_inventory != 0
                     order by product_id
                     """;
 
         try {
             pst = conn.prepareStatement(sql);
-            businessId = "%" + businessId + "%";
+            businessId = "%" + businessId.toLowerCase() + "%";
             pst.setString(1, businessId);
             rs = pst.executeQuery();
 

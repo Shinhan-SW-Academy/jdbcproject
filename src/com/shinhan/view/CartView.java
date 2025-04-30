@@ -25,7 +25,7 @@ public class CartView {
 
         System.out.println("============= 장바구니 상품 조회 =============");
         cartList.forEach(cart -> System.out.printf("선택 <%d> 상품 [%s, %d건, %d원]\n",
-                cart.getCart_id(), cart.getProduct_id(), cart.getCart_num(), cart.getCart_price()));
+                cart.getCart_id(), cart.getProduct_name(), cart.getCart_num(), cart.getCart_price()));
     }
 
     public void displayCart(CartDTO cart) {
